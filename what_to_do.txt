@@ -1,0 +1,17 @@
+Fixes!
+
+1. /(drawer_stud)/_layout.tsx:
+
+    disable both line in return statement:
+        Drawer.Screen name="place"
+        Drawer.Screen name="total_transaction"
+
+2. /(drawer_stud)/index.tsx:
+    Pop is annoying, customer have to click one more time which ruins experience, so i commented it out:
+    in function handleSelect():
+        Alert.alert('Shop Details', `You selected ${shopDetails.shop_name}.`);
+
+things left:
+    1. fix git clone issue
+    2. make amount route more robust, right now there are lots of issue related with staled state
+    3. Implement transaction history route
