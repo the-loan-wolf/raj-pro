@@ -128,9 +128,7 @@ const Landing = () => {
             <FlatList
               data={filteredShops}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => {
-                return renderShop({ item, handleSelect });
-              }}
+              renderItem={({ item }) => renderShop({ item, handleSelect })}
               contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={false}
             />
