@@ -12,6 +12,6 @@ Fixes!
         Alert.alert('Shop Details', `You selected ${shopDetails.shop_name}.`);
 
 things left:
-    1. fix git clone issue
+    1. fix git clone issue (Done)
     2. make amount route more robust, right now there are lots of issue related with staled state
     3. Implement transaction history route

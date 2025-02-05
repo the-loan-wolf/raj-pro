@@ -13,7 +13,7 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const renderShop = ({ item }: { item: Shop }) => {
+const RenderShop = ({ item }: { item: Shop }) => {
   const router = useRouter();
 
   const handleSelect = async (id: string, min: string, max: string) => {
@@ -159,4 +159,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default renderShop;
+export default RenderShop;

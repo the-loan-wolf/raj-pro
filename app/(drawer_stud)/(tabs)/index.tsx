@@ -14,7 +14,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Shop } from "@/utils/type";
 import fetchShops from "@/utils/fetchShops";
-import renderShop from "@/components/renderShop";
+import RenderShop from "@/components/RenderShop";
 
 const Landing = () => {
   const router = useRouter();
@@ -92,7 +92,7 @@ const Landing = () => {
             <FlatList
               data={filteredShops}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => renderShop({ item })}
+              renderItem={({ item }) => <RenderShop item={item} />}
               contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={false}
             />

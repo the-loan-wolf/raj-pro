@@ -1,4 +1,4 @@
-export type Shop = {
+type Shop = {
   id: string;
   shop_name: string;
   address: string;
@@ -10,3 +10,13 @@ export type Shop = {
   min_discount: string;
   max_discount: string;
 };
+
+type PaymentData = {
+  payment_id: number;
+  offer_id: number;
+  offer_amount: string;
+  remaining_amount_to_pay: string;
+  message: string;
+};
+
+export {Shop, PaymentData};

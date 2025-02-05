@@ -10,18 +10,17 @@ import {
   Alert,
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { useFocusEffect, useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  useFocusEffect,
+  useLocalSearchParams,
+  useNavigation,
+} from "expo-router";
 import { useRouter } from "expo-router";
 import checkStatusOfLastTransaction from "@/utils/checkStatusOfLastTransaction";
 import WatingForTransaction from "./watingForTransaction";
-
-type PaymentData = {
-  payment_id: number;
-  offer_id: number;
-  offer_amount: string;
-  remaining_amount_to_pay: string;
-  message: string;
-};
+import { PaymentData } from "@/utils/type";
+import fetchOfferDetails from "@/utils/fetchOfferDetails";
+import paymentConfirm from "@/utils/paymentConfirm";
 
 const Amount = () => {
   const router = useRouter();
@@ -34,97 +33,26 @@ const Amount = () => {
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const [paymentId, setPaymentId] = useState<number>(); // Store payment ID properly
-  const [statusResult, setStatusResult] = useState<boolean | null>(null);
+  const [isTransactionInProcess, setIsTransactionInProcess] = useState<
+    boolean | null
+  >(null);
   const params = useLocalSearchParams();
 
-  const Confirm = async () => {
-    if (!paymentId) {
-      Alert.alert("Error", "No valid payment ID found.");
-      return;
-    }
-
-    try {
-      const token = await SecureStore.getItemAsync("authToken");
-      if (!token) {
-        Alert.alert("Error", "Authentication token is missing.");
-        return;
-      }
-
-      const response = await fetch(
-        `http://54.211.207.66/api/v1/payment/student/payment_Offer_taken/${paymentId}/`,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.status === 200) {
-        Alert.alert("Success", "Offer confirmed successfully!");
-        router.push("/(drawer_stud)/thanks"); // Navigate to thank.tsx
-      } else {
-        // Ensure that only one error message is shown
-        Alert.alert("Error", data.message || "Failed to confirm the offer.");
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      Alert.alert("Error", "An error occurred while confirming the offer.");
-    }
-  };
-
-  useEffect(() => {
-    navigation.setOptions({ headerShown: false });
+  useFocusEffect(() => {
+    navigation.setOptions({ headerShown: true });
 
     if (params.id) setId(params.id as string);
     if (params.min) setMin(params.min as string);
     if (params.max) setMax(params.max as string);
-  }, [params]);
-
-  // Function to fetch offer details
-  const fetchOfferDetails = async (paymentId: number) => {
-    if (!paymentId) return;
-    console.log(`Fetching details for Payment ID: ${paymentId}`);
-
-    try {
-      const token = await SecureStore.getItemAsync("authToken");
-      if (!token) {
-        console.error("Authentication token is missing.");
-        return;
-      }
-
-      const response = await fetch(
-        "http://54.211.207.66/api/v1/payment/student/notify/verified-offer/",
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const offerData = await response.json();
-      console.log("Offer API Response:", offerData);
-
-      if (offerData.status === 200 && offerData.data.payment_id === paymentId) {
-        setPaymentData(offerData.data); // Store offer details if the payment_id matches
-        console.log("Offer details stored:", offerData.data);
-      }
-    } catch (error) {
-      console.error("Error fetching offer details:", error);
-    }
-  };
+  });
 
   useEffect(() => {
     if (paymentId) {
       // Fetch offer details continuously
-      const interval = setInterval(() => fetchOfferDetails(paymentId), 10000); // Polling every 5 sec
+      const interval = setInterval(
+        () => fetchOfferDetails(paymentId, setPaymentData),
+        10000
+      ); // Polling every 5 sec
       return () => clearInterval(interval); // Cleanup on unmount
     }
   }, [paymentId]);
@@ -163,9 +91,9 @@ const Amount = () => {
       if (data.status === 201) {
         setIsVerified(true);
         setPaymentId(data.data.payment_id); // Set Payment ID
-        fetchOfferDetails(data.data.payment_id); // Fetch offer details immediately
+        fetchOfferDetails(data.data.payment_id, setPaymentData); // Fetch offer details immediately
         // Alert.alert("Success", "Payment verified successfully!");
-        router.push("./watingForTransaction")
+        router.push("./watingForTransaction");
       } else {
         Alert.alert("Error", data.message || "Payment verification failed.");
       }
@@ -179,33 +107,37 @@ const Amount = () => {
 
   useFocusEffect(
     useCallback(() => {
-      setAmount('');
+      setAmount("");
       setPaymentData(null);
       setPaymentId(undefined);
       setIsVerified(false);
+      setIsTransactionInProcess(false);
     }, [])
   );
 
-  // const statusResult = checkStatusOfLastTransaction(id);
-  useEffect(() => {
-    const checkTransaction = async () => {
-      if (!id) {
-        console.warn("Invalid ID");
-        return;
-      }
-      const result = await checkStatusOfLastTransaction(id);
-      if(result){
-        setPaymentId(result);
-      }
-      setStatusResult(result? true: false);
-    };
-  
-    checkTransaction();
-  }, [id]);
+  useFocusEffect(
+    useCallback(() => {
+      const checkTransaction = async () => {
+        if (!id) {
+          console.warn("Invalid ID");
+          return;
+        }
+        const result = await checkStatusOfLastTransaction(id);
+        if (result) {
+          setPaymentId(result);
+        }
+        setIsTransactionInProcess(result ? true : false);
+      };
 
-  console.log("statusResult:", statusResult);
+      checkTransaction();
+    }, [id])
+  );
 
-  if (!statusResult) {
+  console.log("statusResult:", isTransactionInProcess);
+
+  if (isTransactionInProcess) {
+    return paymentId && <WatingForTransaction id={paymentId} />;
+  } else {
     return (
       <KeyboardAvoidingView
         style={styles.container}
@@ -234,7 +166,7 @@ const Amount = () => {
               Remaining Amount: {paymentData.remaining_amount_to_pay}
             </Text>
             <Text style={styles.text}>Message: {paymentData.message}</Text>
-            <TouchableOpacity onPress={Confirm}>
+            <TouchableOpacity onPress={() => paymentConfirm(paymentId)}>
               <Text style={styles.text}>Confirm</Text>
             </TouchableOpacity>
           </View>
@@ -266,8 +198,6 @@ const Amount = () => {
         )}
       </KeyboardAvoidingView>
     );
-  } else {
-    return(paymentId && <WatingForTransaction id={paymentId} />)
   }
 };
 
