@@ -2,21 +2,19 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  Image,
   Alert,
   FlatList,
   ActivityIndicator,
   Dimensions,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker"; // Install this package if not already installed
+import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Shop } from "@/utils/type";
 import fetchShops from "@/utils/fetchShops";
-import renderShop from "@/utils/renderShop";
+import renderShop from "@/components/renderShop";
 
 const Landing = () => {
   const router = useRouter();
@@ -73,40 +71,6 @@ const Landing = () => {
     }
   };
 
-  const handleSelect = async (id: string, min: string, max: string) => {
-    try {
-      const token = await SecureStore.getItemAsync("authToken");
-      if (!token) {
-        Alert.alert("Error", "Authentication token is missing.");
-        return;
-      }
-
-      const response = await axios.get(
-        `http://54.211.207.66/api/v1/Shop/shops/${id}/`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      );
-
-      if (response.data.status === 200) {
-        const shopDetails = response.data.data;
-        // Alert.alert('Shop Details', `You selected ${shopDetails.shop_name}.`);
-        router.replace(`./amount?id=${id}&min=${min}&max=${max}`);
-      } else {
-        Alert.alert(
-          "Error",
-          response.data.message || "Failed to fetch shop details."
-        );
-      }
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      Alert.alert("Error", "Fetching shop details failed.");
-    }
-  };
-
   return (
     <View style={styles.container}>
       {loading ? (
@@ -128,7 +92,7 @@ const Landing = () => {
             <FlatList
               data={filteredShops}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => renderShop({ item, handleSelect })}
+              renderItem={({ item }) => renderShop({ item })}
               contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={false}
             />
