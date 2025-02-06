@@ -1,8 +1,8 @@
 import { Alert } from "react-native";
-import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { Dispatch } from "react";
 import { Shop } from "./type";
+import getToken from "./getToken";
 
 type fetchShopsProps = {
   setShops: Dispatch<React.SetStateAction<Shop[]>>;
@@ -18,7 +18,7 @@ const fetchShops = async ({
   setLoading,
 }: fetchShopsProps) => {
   try {
-    const token = await SecureStore.getItemAsync("authToken");
+    const token = await getToken()
     if (!token) {
       Alert.alert("Error", "Authentication token is missing.");
       return;

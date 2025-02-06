@@ -38,3 +38,5 @@ yarn-error.*
 app-example
 pnpm-lock.yaml
 tmp.txt
+
+app-example/

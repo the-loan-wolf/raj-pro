@@ -1,6 +1,6 @@
 import { Dispatch } from "react";
-import * as SecureStore from "expo-secure-store";
 import { PaymentData } from "./type";
+import getToken from "./getToken";
 
 // Function to fetch offer details
 const fetchOfferDetails = async (
@@ -11,7 +11,7 @@ const fetchOfferDetails = async (
   console.log(`Fetching details for Payment ID: ${paymentId}`);
 
   try {
-    const token = await SecureStore.getItemAsync("authToken");
+    const token = await getToken()
     if (!token) {
       console.error("Authentication token is missing.");
       return;

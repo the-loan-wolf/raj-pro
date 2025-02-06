@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import getToken from "@/utils/getToken";
 type Props = {
   id: number;
 };
@@ -9,7 +9,7 @@ const WatingForTransaction = ({ id }: Props) => {
   const router = useRouter();
   const handleVerify = async () => {
     try {
-      const token = await SecureStore.getItemAsync("authToken");
+      const token = await getToken()
       if (!token) {
         Alert.alert("Error", "Authentication token is missing.");
         return false;
@@ -43,10 +43,12 @@ const WatingForTransaction = ({ id }: Props) => {
   };
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <View style={{marginBlockEnd: 50}}>
+      <View style={{ marginBlockEnd: 50 }}>
         <LoadingSpinner />
       </View>
-      <Text style={{marginBlockEnd: 50}}>Waiting for varification from Shopkeeper side...</Text>
+      <Text style={{ marginBlockEnd: 50 }}>
+        Waiting for varification from Shopkeeper side...
+      </Text>
       <TouchableOpacity style={styles.verifyButton} onPress={handleVerify}>
         <Text style={styles.buttonText}>Cancle the Transaction!</Text>
       </TouchableOpacity>
@@ -65,7 +67,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "80%",
     position: "absolute",
-    bottom: 50
+    bottom: 50,
   },
   buttonText: {
     fontSize: 16,

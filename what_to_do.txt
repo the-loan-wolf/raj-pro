@@ -15,3 +15,4 @@ things left:
     1. fix git clone issue (Done)
     2. make amount route more robust, right now there are lots of issue related with staled state
     3. Implement transaction history route
+    4. use React.memo in amount route

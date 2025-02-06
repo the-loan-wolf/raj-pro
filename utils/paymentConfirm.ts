@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import getToken from "./getToken";
 
 const paymentConfirm = async (paymentId: number | undefined) => {
   if (!paymentId) {
@@ -8,7 +8,7 @@ const paymentConfirm = async (paymentId: number | undefined) => {
   }
 
   try {
-    const token = await SecureStore.getItemAsync("authToken");
+    const token = await getToken()
     if (!token) {
       Alert.alert("Error", "Authentication token is missing.");
       return;

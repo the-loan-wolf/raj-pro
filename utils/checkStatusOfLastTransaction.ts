@@ -2,7 +2,7 @@
 // or if transaction time got over(which is 30min)
 // if no transaction is in process it returns false else return paymentID
 import { Alert } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import getToken from "./getToken";
 
 type obj = {
   payment_id: number;
@@ -20,7 +20,7 @@ type obj = {
 
 const checkStatusOfLastTransaction = async (id: string) => {
   try {
-    const token = await SecureStore.getItemAsync("authToken");
+    const token = await getToken()
     if (!token) {
       Alert.alert("Error", "Authentication token is missing.");
       return false;

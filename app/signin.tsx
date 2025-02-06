@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router'; 
 
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 // Ensure your API instance is correctly set up
 import { Link } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
@@ -75,9 +75,9 @@ const Login: React.FC = () => {
 
         // Navigate based on user type
         if (userType && userType.trim() === 'Shopkeeper') {
-          router.push("/(drawer_shop)"); // Correct path for student drawer
+          router.push("./(drawer_shop)"); // Correct path for student drawer
         } else {
-          router.push('/(drawer_stud)'); // Correct path for shopkeeper drawer
+          router.push('./(drawer_stud)'); // Correct path for shopkeeper drawer
         }
       }
     } catch (error: any) {

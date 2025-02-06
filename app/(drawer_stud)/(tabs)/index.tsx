@@ -15,6 +15,7 @@ import * as SecureStore from "expo-secure-store";
 import { Shop } from "@/utils/type";
 import fetchShops from "@/utils/fetchShops";
 import RenderShop from "@/components/RenderShop";
+import getToken from "@/utils/getToken";
 
 const Landing = () => {
   const router = useRouter();
@@ -41,7 +42,7 @@ const Landing = () => {
 
   const handleLogout = async () => {
     try {
-      const token = await SecureStore.getItemAsync("authToken");
+      const token = await getToken()
       if (!token) {
         Alert.alert("Error", "Authentication token is missing.");
         return;

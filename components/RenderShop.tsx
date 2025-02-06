@@ -10,39 +10,47 @@ import {
 import { Shop } from "../utils/type";
 import formatTime from "../utils/formatTime";
 import { useRouter } from "expo-router";
-import axios from "axios";
-import * as SecureStore from "expo-secure-store";
+import getToken from "@/utils/getToken";
 
 const RenderShop = ({ item }: { item: Shop }) => {
   const router = useRouter();
 
   const handleSelect = async (id: string, min: string, max: string) => {
     try {
-      const token = await SecureStore.getItemAsync("authToken");
+      const token = await getToken();
       if (!token) {
         Alert.alert("Error", "Authentication token is missing.");
         return;
       }
 
-      const response = await axios.get(
+      // const response = await axios.get(
+      //   `http://54.211.207.66/api/v1/Shop/shops/${id}/`,
+      //   {
+      //     headers: {
+      //       Accept: "application/json",
+      //       Authorization: `Token ${token}`,
+      //     },
+      //   }
+      // );
+
+      const response = await fetch(
         `http://54.211.207.66/api/v1/Shop/shops/${id}/`,
         {
+          method: "GET",
           headers: {
             Accept: "application/json",
             Authorization: `Token ${token}`,
           },
         }
       );
+      const data = await response.json();
 
-      if (response.data.status === 200) {
-        const shopDetails = response.data.data;
+      if (data.status === 200) {
+        const shopDetails = data.data;
         // Alert.alert('Shop Details', `You selected ${shopDetails.shop_name}.`);
         router.replace(`./amount?id=${id}&min=${min}&max=${max}`);
       } else {
-        Alert.alert(
-          "Error",
-          response.data.message || "Failed to fetch shop details."
-        );
+        Alert.alert("Error", data.message || "Failed to fetch shop details.");
       }
     } catch (error) {
       console.error("Fetch Error:", error);

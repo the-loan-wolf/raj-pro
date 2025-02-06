@@ -9,7 +9,6 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import * as SecureStore from "expo-secure-store";
 import {
   useFocusEffect,
   useLocalSearchParams,
@@ -21,6 +20,7 @@ import WatingForTransaction from "./watingForTransaction";
 import { PaymentData } from "@/utils/type";
 import fetchOfferDetails from "@/utils/fetchOfferDetails";
 import paymentConfirm from "@/utils/paymentConfirm";
+import getToken from "@/utils/getToken";
 
 const Amount = () => {
   const router = useRouter();
@@ -65,7 +65,7 @@ const Amount = () => {
 
     try {
       setVerifying(true);
-      const token = await SecureStore.getItemAsync("authToken");
+      const token = await getToken()
       if (!token) {
         Alert.alert("Error", "Authentication token is missing.");
         setVerifying(false);
