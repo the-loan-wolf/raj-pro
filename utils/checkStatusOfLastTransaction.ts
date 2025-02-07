@@ -20,7 +20,7 @@ type obj = {
 
 const checkStatusOfLastTransaction = async (id: string) => {
   try {
-    const token = await getToken()
+    const token = await getToken();
     if (!token) {
       Alert.alert("Error", "Authentication token is missing.");
       return false;
@@ -50,12 +50,12 @@ const checkStatusOfLastTransaction = async (id: string) => {
     );
 
     if (filteredResult.length === 0) {
-      console.warn("No transactions found for shop_id:", id);
+      console.warn("checkStatusOfLastTransaction - No transactions found for shop_id:", id);
       return false;
     }
 
     const lastTransaction: obj = filteredResult.at(-1)!;
-    console.log(lastTransaction);
+    console.log("checkStatusOfLastTransaction - last transaction details: ", lastTransaction);
     if (lastTransaction.payment_received) {
       return false;
     }
@@ -65,7 +65,7 @@ const checkStatusOfLastTransaction = async (id: string) => {
       currentTime.getTime() - lastTransactionTime.getTime();
     const diffMinutes = Math.floor(differenceInMilliSecond / (1000 * 60));
 
-    console.log(diffMinutes);
+    console.log("checkStatusOfLastTransaction- Total minute since last transaction: ",diffMinutes);
 
     if (diffMinutes >= 30) {
       return false;

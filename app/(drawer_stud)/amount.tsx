@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useReducer } from "react";
 import {
   View,
   Text,
@@ -19,8 +19,12 @@ import checkStatusOfLastTransaction from "@/utils/checkStatusOfLastTransaction";
 import WatingForTransaction from "./watingForTransaction";
 import { PaymentData } from "@/utils/type";
 import fetchOfferDetails from "@/utils/fetchOfferDetails";
-import paymentConfirm from "@/utils/paymentConfirm";
 import getToken from "@/utils/getToken";
+
+// const initialState = {
+//   amount: string;
+
+// }
 
 const Amount = () => {
   const router = useRouter();
@@ -31,12 +35,12 @@ const Amount = () => {
   const [max, setMax] = useState<string>(""); // Max offer range
   const [verifying, setVerifying] = useState<boolean>(false);
   const [isVerified, setIsVerified] = useState<boolean>(false);
-  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const [paymentId, setPaymentId] = useState<number>(); // Store payment ID properly
   const [isTransactionInProcess, setIsTransactionInProcess] = useState<
     boolean | null
   >(null);
   const params = useLocalSearchParams();
+  // const [state, dispatch] = useReducer();
 
   useFocusEffect(() => {
     navigation.setOptions({ headerShown: true });
@@ -46,17 +50,6 @@ const Amount = () => {
     if (params.max) setMax(params.max as string);
   });
 
-  useEffect(() => {
-    if (paymentId) {
-      // Fetch offer details continuously
-      const interval = setInterval(
-        () => fetchOfferDetails(paymentId, setPaymentData),
-        10000
-      ); // Polling every 5 sec
-      return () => clearInterval(interval); // Cleanup on unmount
-    }
-  }, [paymentId]);
-
   const handleVerify = async () => {
     if (!id.trim() || !amount.trim() || isNaN(Number(amount))) {
       Alert.alert("Error", "Please enter a valid ID and numeric amount.");
@@ -65,7 +58,7 @@ const Amount = () => {
 
     try {
       setVerifying(true);
-      const token = await getToken()
+      const token = await getToken();
       if (!token) {
         Alert.alert("Error", "Authentication token is missing.");
         setVerifying(false);
@@ -86,14 +79,12 @@ const Amount = () => {
       );
 
       const data = await response.json();
-      console.log("Verification API Response:", data);
+      console.log("amount route - Verification API Response:", data);
 
       if (data.status === 201) {
         setIsVerified(true);
         setPaymentId(data.data.payment_id); // Set Payment ID
-        fetchOfferDetails(data.data.payment_id, setPaymentData); // Fetch offer details immediately
-        // Alert.alert("Success", "Payment verified successfully!");
-        router.push("./watingForTransaction");
+        router.replace(`./watingForTransaction?id=${paymentId}`);
       } else {
         Alert.alert("Error", data.message || "Payment verification failed.");
       }
@@ -108,7 +99,6 @@ const Amount = () => {
   useFocusEffect(
     useCallback(() => {
       setAmount("");
-      setPaymentData(null);
       setPaymentId(undefined);
       setIsVerified(false);
       setIsTransactionInProcess(false);
@@ -133,7 +123,7 @@ const Amount = () => {
     }, [id])
   );
 
-  console.log("statusResult:", isTransactionInProcess);
+  console.log("amount route - isTransactionInProcess:", isTransactionInProcess);
 
   if (isTransactionInProcess) {
     return paymentId && <WatingForTransaction id={paymentId} />;
@@ -150,52 +140,31 @@ const Amount = () => {
         >
           <Text>Back to Home</Text>
         </TouchableOpacity>
-
-        {paymentData ? (
-          // If the shop has generated the offer, show this view.
-          <View style={styles.card}>
-            <Text style={styles.title}>Payment Details</Text>
-            <Text style={styles.text}>
-              Payment ID: {paymentData.payment_id}
+        {/* Show this View to enter the Amount for which offer should be
+        generated*/}
+        <View style={styles.card}>
+          <Text style={styles.title}>Please Enter Details!</Text>
+          <Text style={styles.subtitle}>
+            Enter the purchase amount to verify within the offer range {min}% to{" "}
+            {max}%
+          </Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            placeholder="Enter Amount"
+            value={amount}
+            onChangeText={setAmount}
+          />
+          <TouchableOpacity
+            style={styles.verifyButton}
+            onPress={handleVerify}
+            disabled={verifying || isVerified}
+          >
+            <Text style={styles.buttonText}>
+              {verifying || isVerified ? "Verifying..." : "Verify"}
             </Text>
-            <Text style={styles.text}>Offer ID: {paymentData.offer_id}</Text>
-            <Text style={styles.text}>
-              Offer Amount: {paymentData.offer_amount}
-            </Text>
-            <Text style={styles.text}>
-              Remaining Amount: {paymentData.remaining_amount_to_pay}
-            </Text>
-            <Text style={styles.text}>Message: {paymentData.message}</Text>
-            <TouchableOpacity onPress={() => paymentConfirm(paymentId)}>
-              <Text style={styles.text}>Confirm</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          // Show this View to enter the Amount for which offer should be generated
-          <View style={styles.card}>
-            <Text style={styles.title}>Please Enter Details!</Text>
-            <Text style={styles.subtitle}>
-              Enter the purchase amount to verify within the offer range {min}%
-              to {max}%
-            </Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              placeholder="Enter Amount"
-              value={amount}
-              onChangeText={setAmount}
-            />
-            <TouchableOpacity
-              style={styles.verifyButton}
-              onPress={handleVerify}
-              disabled={verifying || isVerified}
-            >
-              <Text style={styles.buttonText}>
-                {verifying || isVerified ? "Verifying..." : "Verify"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     );
   }

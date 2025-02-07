@@ -8,7 +8,7 @@ const fetchOfferDetails = async (
   setPaymentData: Dispatch<React.SetStateAction<PaymentData | null>>
 ) => {
   if (!paymentId) return;
-  console.log(`Fetching details for Payment ID: ${paymentId}`);
+  console.log(`fetchOfferDetails - Fetching details for Payment ID: ${paymentId}`);
 
   try {
     const token = await getToken()
@@ -30,7 +30,7 @@ const fetchOfferDetails = async (
     );
 
     const offerData = await response.json();
-    console.log("Offer API Response:", offerData);
+    // console.log("fetchOfferDetails - last verified offer:", offerData);
 
     if (offerData.status === 200 && offerData.data.payment_id === paymentId) {
       setPaymentData(offerData.data); // Store offer details if the payment_id matches

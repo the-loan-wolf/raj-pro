@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Alert,
   FlatList,
   ActivityIndicator,
   Dimensions,
@@ -26,8 +25,6 @@ const Landing = () => {
 
   const handleAddressFilter = (address: string) => {
     setSelectedAddress(address);
-    console.log(address);
-    // console.log(shops)
     if (address == " ") {
       setFilteredShops(shops);
     } else {
@@ -78,6 +75,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#D4EBF8",
     paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
   container1: {
     flexDirection: "row",
