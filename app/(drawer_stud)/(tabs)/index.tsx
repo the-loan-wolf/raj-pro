@@ -9,16 +9,11 @@ import {
   Dimensions,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useRouter } from "expo-router";
-import axios from "axios";
-import * as SecureStore from "expo-secure-store";
 import { Shop } from "@/utils/type";
 import fetchShops from "@/utils/fetchShops";
 import RenderShop from "@/components/RenderShop";
-import getToken from "@/utils/getToken";
 
 const Landing = () => {
-  const router = useRouter();
   const [shops, setShops] = useState<Shop[]>([]);
   const [filteredShops, setFilteredShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -37,38 +32,6 @@ const Landing = () => {
       setFilteredShops(shops);
     } else {
       setFilteredShops(shops.filter((shop) => shop.address === address));
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      const token = await getToken()
-      if (!token) {
-        Alert.alert("Error", "Authentication token is missing.");
-        return;
-      }
-
-      const response = await axios.post(
-        "http://54.211.207.66/api/v1/auth/logout/",
-        {},
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200 || response.status === 204) {
-        await SecureStore.deleteItemAsync("authToken");
-        Alert.alert("Logged Out", "You have successfully logged out.");
-        router.push("../signin");
-      } else {
-        Alert.alert("Error", response.data.message || "Failed to log out.");
-      }
-    } catch (error) {
-      console.error("Error during logout:", error);
-      Alert.alert("Error", "An error occurred while logging out.");
     }
   };
 
