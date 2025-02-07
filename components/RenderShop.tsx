@@ -1,62 +1,10 @@
-import {
-  View,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Dimensions,
-  Alert,
-} from "react-native";
+import { View, Image, StyleSheet, Text, Dimensions } from "react-native";
 import { Shop } from "../utils/type";
 import formatTime from "../utils/formatTime";
-import { useRouter } from "expo-router";
-import getToken from "@/utils/getToken";
+import { Link } from "expo-router";
 
 const RenderShop = ({ item }: { item: Shop }) => {
-  const router = useRouter();
-
-  const handleSelect = async (id: string, min: string, max: string) => {
-    try {
-      const token = await getToken();
-      if (!token) {
-        Alert.alert("Error", "Authentication token is missing.");
-        return;
-      }
-
-      // const response = await axios.get(
-      //   `http://54.211.207.66/api/v1/Shop/shops/${id}/`,
-      //   {
-      //     headers: {
-      //       Accept: "application/json",
-      //       Authorization: `Token ${token}`,
-      //     },
-      //   }
-      // );
-
-      const response = await fetch(
-        `http://54.211.207.66/api/v1/Shop/shops/${id}/`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      );
-      const data = await response.json();
-
-      if (data.status === 200) {
-        const shopDetails = data.data;
-        // Alert.alert('Shop Details', `You selected ${shopDetails.shop_name}.`);
-        router.replace(`./amount?id=${id}&min=${min}&max=${max}`);
-      } else {
-        Alert.alert("Error", data.message || "Failed to fetch shop details.");
-      }
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      Alert.alert("Error", "Fetching shop details failed.");
-    }
-  };
+  const { id, min_discount, max_discount } = item;
 
   return (
     <View style={styles.cardContainer}>
@@ -83,14 +31,13 @@ const RenderShop = ({ item }: { item: Shop }) => {
         <Text style={styles.offer}>
           Offer Range {item.min_discount} to {item.max_discount}
         </Text>
-        <TouchableOpacity
+        <Link
+          replace
+          href={`./amount?id=${id}&min=${min_discount}&max=${max_discount}`}
           style={styles.selectButton}
-          onPress={() =>
-            handleSelect(item.id, item.min_discount, item.max_discount)
-          }
         >
           <Text style={styles.buttonText}>Select</Text>
-        </TouchableOpacity>
+        </Link>
       </View>
     </View>
   );
@@ -164,6 +111,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFF",
     fontWeight: "bold",
+    textAlign: "center",
   },
 });
 
