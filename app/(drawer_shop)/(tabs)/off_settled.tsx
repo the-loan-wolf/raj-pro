@@ -1,7 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Alert, StyleSheet, TouchableOpacity } from 'react-native';
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import getToken from "@/utils/getToken";
 
 interface Payment {
   payment_id: string;
@@ -22,30 +31,30 @@ const PaymentsReceived: React.FC = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const token = await SecureStore.getItemAsync('authToken');
+        const token = await getToken();
         if (!token) {
-          Alert.alert('Error', 'Authentication token is missing.');
+          Alert.alert("Error", "Authentication token is missing.");
           return;
         }
 
-        const response = await axios.get<{ status: number; data: { results: Payment[] } }>(
-          'http://54.211.207.66/api/v1/Shop/shop/All_payments_recieved/',
-          {
-            headers: {
-              Accept: 'application/json',
-              Authorization: `Token ${token}`,
-            },
-          }
-        );
+        const response = await axios.get<{
+          status: number;
+          data: { results: Payment[] };
+        }>("http://54.211.207.66/api/v1/Shop/shop/All_payments_recieved/", {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Token ${token}`,
+          },
+        });
 
         if (response.data.status === 200) {
           setPayments(response.data.data.results);
         } else {
-          Alert.alert('Error', 'Failed to fetch payments.');
+          Alert.alert("Error", "Failed to fetch payments.");
         }
       } catch (error) {
-        console.error('Fetch Error:', error);
-        Alert.alert('Error', 'An error occurred while fetching payments.');
+        console.error("Fetch Error:", error);
+        Alert.alert("Error", "An error occurred while fetching payments.");
       } finally {
         setLoading(false);
       }
@@ -68,9 +77,12 @@ const PaymentsReceived: React.FC = () => {
               <Text style={styles.text}>Shop: {item.shop_name}</Text>
               <Text style={styles.text}>Amount: ₹{item.payable_amount}</Text>
               <Text style={styles.text}>Status: {item.payment_status}</Text>
-              <Text style={styles.text}>Received: {item.payment_received ? 'Yes' : 'No'}</Text>
-              <Text style={styles.text}>Date: {new Date(item.payment_date).toLocaleString()}</Text>
-           
+              <Text style={styles.text}>
+                Received: {item.payment_received ? "Yes" : "No"}
+              </Text>
+              <Text style={styles.text}>
+                Date: {new Date(item.payment_date).toLocaleString()}
+              </Text>
             </View>
           )}
         />
@@ -85,25 +97,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#D4EBF8',
+    backgroundColor: "#D4EBF8",
   },
   paymentCard: {
-    backgroundColor: '#F5EFFF',
+    backgroundColor: "#F5EFFF",
     padding: 16,
     borderRadius: 10,
     marginVertical: 8,
-    borderColor: 'black',
+    borderColor: "black",
     borderWidth: 0.2,
   },
   text: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     marginBottom: 4,
   },
   noDataText: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
-    color: '#888',
+    color: "#888",
     marginTop: 20,
   },
 });
