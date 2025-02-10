@@ -51,10 +51,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
     width: "80%",
-    position: "absolute",
     bottom: 50,
   },
   buttonText: {
