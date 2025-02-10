@@ -1,4 +1,4 @@
-import WatingForTransaction from "@/app/(drawer_stud)/watingForTransaction";
+import WatingForTransaction from "@/app/(drawer_stud)/waitingForTransaction";
 import { PaymentData } from "@/utils/type";
 import { router } from "expo-router";
 import { Dispatch, SetStateAction, useState } from "react";

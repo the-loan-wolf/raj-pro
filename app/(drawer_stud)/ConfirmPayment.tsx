@@ -1,28 +1,32 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import React from "react";
 import paymentConfirm from "@/utils/paymentConfirm";
-import { PaymentData } from "@/utils/type";
+import { useAtomValue } from "jotai";
+import payDataAtom from "@/utils/GlobalState";
 
-const ConfirmPayment = ({ paymentData }: { paymentData: PaymentData }) => {
-  const { payment_id } = paymentData;
+const ConfirmPayment = () => {
+  const paymentData = useAtomValue(payDataAtom);
   return (
-    // If the shop has generated the offer, show this view.
-    <View style={styles.card}>
-      <Text style={styles.title}>Payment Details</Text>
-      <Text style={styles.text}>Payment ID: {paymentData.payment_id}</Text>
-      <Text style={styles.text}>Offer ID: {paymentData.offer_id}</Text>
-      <Text style={styles.text}>Offer Amount: {paymentData.offer_amount}</Text>
-      <Text style={styles.text}>
-        Remaining Amount: {paymentData.remaining_amount_to_pay}
-      </Text>
-      <Text style={styles.text}>Message: {paymentData.message}</Text>
-      <TouchableOpacity
-        style={styles.verifyButton}
-        onPress={() => paymentConfirm(payment_id)}
-      >
-        <Text style={styles.text}>Confirm</Text>
-      </TouchableOpacity>
-    </View>
+    paymentData && (
+      // If the shop has generated the offer, show this view.
+      <View style={styles.card}>
+        <Text style={styles.title}>Payment Details</Text>
+        <Text style={styles.text}>Payment ID: {paymentData.payment_id}</Text>
+        <Text style={styles.text}>Offer ID: {paymentData.offer_id}</Text>
+        <Text style={styles.text}>
+          Offer Amount: {paymentData.offer_amount}
+        </Text>
+        <Text style={styles.text}>
+          Remaining Amount: {paymentData.remaining_amount_to_pay}
+        </Text>
+        <Text style={styles.text}>Message: {paymentData.message}</Text>
+        <TouchableOpacity
+          style={styles.verifyButton}
+          onPress={() => paymentConfirm(paymentData.payment_id)}
+        >
+          <Text style={styles.text}>Confirm</Text>
+        </TouchableOpacity>
+      </View>
+    )
   );
 };
 

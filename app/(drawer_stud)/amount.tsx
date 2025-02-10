@@ -16,12 +16,14 @@ import {
 } from "expo-router";
 import { useRouter } from "expo-router";
 import checkStatusOfLastTransaction from "@/utils/checkStatusOfLastTransaction";
-import WatingForTransaction from "./watingForTransaction";
+import WaitingForTransaction from "./waitingForTransaction";
 import { PaymentData } from "@/utils/type";
 import fetchOfferDetails from "@/utils/fetchOfferDetails";
 import getToken from "@/utils/getToken";
 import ConfirmPayment from "./ConfirmPayment";
 import AmountField from "@/components/AmountField";
+import { useAtom } from "jotai";
+import payDataAtom from "@/utils/GlobalState";
 
 // const initialState = {
 //   amount: string;
@@ -44,6 +46,7 @@ const Amount = () => {
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
   const params = useLocalSearchParams();
   // const [state, dispatch] = useReducer();
+  const [payData, setPayData] = useAtom(payDataAtom);
 
   useFocusEffect(() => {
     navigation.setOptions({ headerShown: true });
@@ -87,11 +90,10 @@ const Amount = () => {
       if (data.status === 201) {
         setIsVerified(true);
         setPaymentId(data.data.payment_id); // Set Payment ID
-        console.log("paymentData:", paymentData);
-        console.log("paymentId:", paymentId);
-        router.push(
-          `./watingForTransaction?paymentData=${paymentData}&paymentId=${paymentId}`
-        );
+        // console.log(data.data.payment_id);
+        // console.log("paymentData:", paymentData);
+        // console.log("paymentId:", paymentId);
+        router.push(`./waitingForTransaction?paymentId=${data.data.payment_id}`);
       } else {
         Alert.alert("Error", data.message || "Payment verification failed.");
       }
@@ -107,7 +109,7 @@ const Amount = () => {
     if (paymentId) {
       // Fetch offer details continuously
       const interval = setInterval(
-        () => fetchOfferDetails(paymentId, setPaymentData),
+        () => fetchOfferDetails(paymentId, setPayData),
         10000
       ); // Polling every 5 sec
       return () => clearInterval(interval); // Cleanup on unmount
@@ -120,7 +122,7 @@ const Amount = () => {
       setPaymentId(undefined);
       setIsVerified(false);
       setIsTransactionInProcess(false);
-      setPaymentData(null);
+      setPayData(null);
     }, [])
   );
 
@@ -145,13 +147,9 @@ const Amount = () => {
   console.log("amount route - isTransactionInProcess:", isTransactionInProcess);
 
   if (isTransactionInProcess) {
-    return (
-      paymentId && (
-        <WatingForTransaction paymentData={paymentData} paymentId={paymentId} />
-      )
-    );
-  } else if (paymentData) {
-    <ConfirmPayment paymentData={paymentData} />;
+    return paymentId && <WaitingForTransaction paymentId={paymentId} />;
+  } else if (payData) {
+    <ConfirmPayment />;
   } else {
     return (
       <AmountField
